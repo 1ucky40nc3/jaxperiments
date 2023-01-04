@@ -1,6 +1,7 @@
-from functools import (
+from typing import (
     Any,
     Tuple,
+    Union,
     Optional
 )
 
@@ -11,6 +12,7 @@ import ml_collections as mlc
 import jax
 import jax.numpy as jnp
 
+import flax
 from flax.training import train_state
 
 import jaxperiments as jp
@@ -23,7 +25,12 @@ class TrainState(train_state.TrainState):
     batch_stats: Optional[flax.core.frozen_dict.FrozenDict[str, Any]] = None
 
 
-@functools.partial(jax.pmap, axis_name='batch', donate_argums=(0,), static_argnames=['config'])
+@partial(
+    jax.pmap, 
+    axis_name='batch', 
+    donate_argnums=(0,), 
+    static_broadcasted_argnums=(3,)
+)
 def update_fn(
     state: TrainState, 
     samples: jnp.ndarray, 
@@ -58,8 +65,8 @@ def update_fn(
 def inference_fn(
     state: TrainState, 
     samples: jnp.ndarray,
+    config: ConfigDict,
     targets: Optional[jnp.ndarray] = None,
-    config: ConfigDict
 ) -> Tuple[jnp.ndarray, jnp.ndarray]:
     def loss_fn(params: jnp.ndarray) -> Tuple[jnp.ndarray, jnp.ndarray]:
         variables = {
