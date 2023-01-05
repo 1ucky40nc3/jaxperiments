@@ -25,6 +25,21 @@ class TrainState(train_state.TrainState):
     batch_stats: Optional[flax.core.frozen_dict.FrozenDict[str, Any]] = None
 
 
+@partial(jax.jit, static_argnums=(1,), backend='cpu')
+def init_fn(rng: jnp.ndarray, config: ConfigDict) -> TrainState:
+    model = getattr(jp.models, config.model.name)(config.model.kwargs)
+    samples = jnp.ones([1, *config.data.sample_shape])
+    variables = model.init(rng, samples)
+    tx = jp.optim.tx.make(config.optim)
+
+    return TrainState.create(
+        tx=tx,
+        apply_fn=apply_fn,
+        params=variables.get('params'),
+        batch_stats=variables.get('batch_stats', {})
+    )
+
+
 @partial(
     jax.pmap, 
     axis_name='batch', 
@@ -80,5 +95,3 @@ def inference_fn(
 
     loss, logits = loss_fn(state.params)
     return loss, logits
-
-
