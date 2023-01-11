@@ -14,6 +14,7 @@ contourpy==1.0.6
 cycler==0.11.0
 dill==0.3.6
 dm-tree==0.1.8
+einops==0.6.0
 etils==0.9.0
 exceptiongroup==1.1.0
 flatbuffers==22.12.6
@@ -31,7 +32,9 @@ importlib-metadata==6.0.0
 importlib-resources==5.10.2
 iniconfig==1.1.1
 jax==0.4.1
+jax-dataclasses==1.5.1
 jaxlib==0.4.1
+-e git+https://github.com/1ucky40nc3/jaxperiments.git@971287bc85118f939440077d19ccf7cdca9f7457#egg=jaxperiments
 keras==2.11.0
 kiwisolver==1.4.4
 libclang==14.0.6
